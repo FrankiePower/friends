@@ -3,6 +3,274 @@
  * You should not edit it manually or your changes might be overwritten.
  */
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  devnet: {
+    Pooler: {
+      address:
+        "0x7f92683329647d1406b5a5dcabf43ade28f31677f9853ebf38d8342ad1d3acc",
+      abi: [
+        {
+          type: "impl",
+          name: "PoolerImpl",
+          interface_name: "contracts::Pooler::IPooler",
+        },
+        {
+          type: "struct",
+          name: "core::byte_array::ByteArray",
+          members: [
+            {
+              name: "data",
+              type: "core::array::Array::<core::bytes_31::bytes31>",
+            },
+            {
+              name: "pending_word",
+              type: "core::felt252",
+            },
+            {
+              name: "pending_word_len",
+              type: "core::integer::u32",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::Pooler::IPooler",
+          items: [
+            {
+              type: "function",
+              name: "create_pool",
+              inputs: [
+                {
+                  name: "description",
+                  type: "core::byte_array::ByteArray",
+                },
+                {
+                  name: "target_amount",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u64",
+                },
+              ],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "contribute",
+              inputs: [
+                {
+                  name: "pool_id",
+                  type: "core::integer::u64",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_pool",
+              inputs: [
+                {
+                  name: "pool_id",
+                  type: "core::integer::u64",
+                },
+              ],
+              outputs: [
+                {
+                  type: "(core::byte_array::ByteArray, core::integer::u256, core::starknet::contract_address::ContractAddress, core::integer::u256, core::bool)",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_contribution",
+              inputs: [
+                {
+                  name: "pool_id",
+                  type: "core::integer::u64",
+                },
+                {
+                  name: "user",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "mark_complete",
+              inputs: [
+                {
+                  name: "pool_id",
+                  type: "core::integer::u64",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "withdraw",
+              inputs: [
+                {
+                  name: "pool_id",
+                  type: "core::integer::u64",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::Pooler::Pooler::PoolCreated",
+          kind: "struct",
+          members: [
+            {
+              name: "pool_id",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "creator",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::Pooler::Pooler::Contributed",
+          kind: "struct",
+          members: [
+            {
+              name: "pool_id",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "contributor",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "amount",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::Pooler::Pooler::PoolCompleted",
+          kind: "struct",
+          members: [
+            {
+              name: "pool_id",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::Pooler::Pooler::Withdrawn",
+          kind: "struct",
+          members: [
+            {
+              name: "pool_id",
+              type: "core::integer::u64",
+              kind: "data",
+            },
+            {
+              name: "recipient",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "amount",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::Pooler::Pooler::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "PoolCreated",
+              type: "contracts::Pooler::Pooler::PoolCreated",
+              kind: "nested",
+            },
+            {
+              name: "Contributed",
+              type: "contracts::Pooler::Pooler::Contributed",
+              kind: "nested",
+            },
+            {
+              name: "PoolCompleted",
+              type: "contracts::Pooler::Pooler::PoolCompleted",
+              kind: "nested",
+            },
+            {
+              name: "Withdrawn",
+              type: "contracts::Pooler::Pooler::Withdrawn",
+              kind: "nested",
+            },
+          ],
+        },
+      ],
+      classHash:
+        "0x265a52dbd0044451ed0659fe7c2293284c65d39cca03c996f740a3e8a484393",
+    },
+  },
+} as const;
 
 export default deployedContracts;
