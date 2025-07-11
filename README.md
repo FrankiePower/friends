@@ -1,22 +1,33 @@
-# 🏗 Scaffold-Stark
+# 🏗 Friends - Group Savings on Starknet
 
 <h4 align="center">
   <a href="https://docs.scaffoldstark.com/">Documentation</a> |
-  <a href="https://scaffoldstark.com/">Website</a> |
-  <a href="https://scaffold-stark-demo.vercel.app/debug">Demo</a>
+  <a href="https://scaffoldstark.com/">Website</a>
 </h4>
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on Starknet blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+🎯 A decentralized group savings platform built on Starknet blockchain. Friends makes it easy and fun to create shared savings goals, contribute together, and achieve your dreams as a group.
 
-⚙️ Built using NextJS, Starknet.js, Scarb, Starknet-React, Starknet Foundry.
+⚙️ Built using NextJS, Starknet.js, Scarb, Starknet-React, and Starknet Foundry.
 
-- ✅ **Contract Fast Reload**: Your frontend auto-adapts to your smart contracts as you deploy them.
-- 🪝 [**Custom hooks**](https://docs.scaffoldstark.com/hooks/): Collection of React hooks wrapper around [starknet-react](https://starknet-react.com/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldstark.com/components): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Prefunded Account**: Quickly test your application with a burner wallet and prefunded accounts.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with Starknet network.
+## ✨ Features
 
-![Debug Contracts tab](./packages/nextjs/public/debug-image.png)
+- 🎯 **Create Savings Goals**: Set up shared targets for group activities, trips, or any collective dream.
+- 👥 **Group Contributions**: Invite friends to contribute securely to your shared goals.
+- 🔒 **Smart Contract Security**: Funds are safely locked until the target is reached.
+- ⚡ **Instant Release**: Automatic fund release when the goal is achieved.
+- 💫 **Beautiful UI/UX**: Modern, animated interface with real-time progress tracking.
+- 🔐 **Wallet Integration**: Connect with various Starknet wallets.
+
+## 🏦 Smart Contract Features
+
+The `Pooler` smart contract provides the following functionality:
+
+- Create savings pools with custom descriptions and target amounts
+- Accept contributions in STRK tokens
+- Track individual contributions and total pool progress
+- Automatic completion when target is reached
+- Secure withdrawal mechanism for pool recipients
+- View pool details and contribution history
 
 ## 0. Requirements
 
@@ -170,37 +181,33 @@ Now you are ready!!!
 - Cairo - v2.11.4
 - Rpc - v0.8.0
 
-## Quickstart 1: Deploying a Smart Contract to Starknet-Devnet
+## Quickstart 1: Running Friends Locally
 
-To get started with Scaffold-Stark, follow the steps below:
+To get started with Friends, follow these steps:
 
-1. Install the latest version of Scaffold-Stark
+1. Clone the repository and install dependencies:
 
 ```bash
-npx create-stark@latest
-cd my-dapp-example
+git clone <your-repo-url>
+cd friends
 yarn install
 ```
 
-2. Run a local network in the first terminal.
+2. Run a local Starknet network in the first terminal:
 
 ```bash
 yarn chain
 ```
 
-> To run a fork : `yarn chain --fork-network <URL> [--fork-block <BLOCK_NUMBER>]`
+This command starts a local Starknet network using Devnet. The network runs on your local machine and can be used for testing and development.
 
-This command starts a local Starknet network using Devnet. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `scaffold.config.ts` for your nextjs app.
-
-3. On a second terminal, deploy the sample contract:
+3. On a second terminal, deploy the Pooler contract:
 
 ```bash
 yarn deploy
 ```
 
-This command deploys a sample smart contract to the local network. The contract is located in `packages/snfoundry/contracts/src` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/snfoundry/scripts-ts/deploy.ts` to deploy the contract to the network. You can also customize the deploy script.
-
-By default `Scaffold-Stark` takes the first prefunded account from `starknet-devnet` as a deployer address,
+This deploys the Pooler smart contract that manages group savings pools. The contract is located in `packages/snfoundry/contracts/src/Pooler.cairo`.
 
 4. On a third terminal, start your NextJS app:
 
@@ -208,47 +215,50 @@ By default `Scaffold-Stark` takes the first prefunded account from `starknet-dev
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page.
+Visit your app on: `http://localhost:3000`. You can now:
+- Create new savings goals
+- Invite friends to contribute
+- Track progress in real-time
+- Test the full savings flow
 
-5. Check your environment variables. We have a `yarn postinstall` script that will create `.env` files based on the `.env.example` files provided. If the environment variables don't exist, you can manually create a `.env` file from the `.env.example` to get the app running!
+5. Set up your environment variables:
+   - Copy `.env.example` to `.env` in both `packages/nextjs` and `packages/snfoundry`
+   - The `yarn postinstall` script will handle this automatically
+   - Configure your RPC endpoints and other settings as needed
 
-> ⚠️ **IMPORTANT**: Never commit your private keys or sensitive environment variables to version control. The `.env` files are included in `.gitignore` by default, but always double-check before pushing your changes.
+> ⚠️ **IMPORTANT**: Never commit private keys or sensitive environment variables to version control.
 
-## Quickstart 2: Deploying a Smart Contract to Sepolia Testnet
+## Quickstart 2: Deploying to Sepolia Testnet
 
 <details>
 
-1. Make sure you already cloned this repo and installed dependencies.
+1. Prepare your environment variables:
+   - In `packages/snfoundry/.env`: Add your wallet's account contract address and private key
+   - In `packages/nextjs/.env`: Configure your Sepolia testnet RPC URL
 
-2. Prepare your environment variables.
+2. Update your network configuration:
+   - Find `packages/nextjs/scaffold.config.ts`
+   - Set `targetNetworks` to `[chains.sepolia]`
 
-Find the `packages/snfoundry/.env` file and fill the env variables related to Sepolia testnet with your own wallet account contract address and private key. Find the `packages/nextjs/.env` file and fill the env variable related to Sepolia testnet rpc url.
+3. Get test tokens:
+   - You'll need STRK tokens on Sepolia to create and contribute to pools
+   - Get tokens from:
+     - [Starknet Faucet](https://starknet-faucet.vercel.app/)
+     - [Blastapi Starknet Sepolia STRK](https://blastapi.io/faucets/starknet-sepolia-strk)
 
-3. Change your default network to Sepolia testnet.
-
-Find the `packages/nextjs/scaffold.config.ts` file and change the `targetNetworks` to `[chains.sepolia]`.
-
-![chall-0-scaffold-config](./packages/nextjs/public/scaffold-config.png)
-
-4. Get some testnet tokens.
-
-You will need to get some `STRK` Sepolia tokens to deploy your contract to Sepolia testnet.
-
-> Some popular faucets are [Starknet Faucet](https://starknet-faucet.vercel.app/) and [Blastapi Starknet Sepolia STRK](https://blastapi.io/faucets/starknet-sepolia-strk)
-
-4. Open a terminal, deploy the sample contract to Sepolia testnet:
+4. Deploy the Pooler contract:
 
 ```bash
 yarn deploy --network sepolia
 ```
 
-5. On a second terminal, start your NextJS app:
+5. Start the frontend:
 
 ```bash
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page.
+Your dapp will now be connected to Sepolia testnet, ready for testing with real network conditions.
 
 </details>
 
@@ -354,16 +364,69 @@ Commands:
   - `yarn test:nextjs run` to run regular tests without watch mode
   - `yarn test:nextjs run --coverage` to run regular tests without watch mode with coverage
 
-</details>
+## Development Workflow
 
-## Documentation
+### Smart Contract Development
 
-Visit our [docs](https://docs.scaffoldstark.com/) to learn how to start building with Scaffold-Stark.
+The Pooler contract is located in `packages/snfoundry/contracts/src/Pooler.cairo`. Key features:
 
-To know more about its features, check out our [website](https://scaffoldstark.com)
+- Pool creation and management
+- Contribution handling
+- Progress tracking
+- Secure fund release
+- Event emission for frontend updates
 
-## Contributing to Scaffold-Stark
+To modify the contract:
+1. Edit `Pooler.cairo`
+2. Run tests: `yarn test`
+3. Deploy changes: `yarn deploy`
 
-We welcome contributions to Scaffold-Stark!
+### Frontend Development
 
-Please see [CONTRIBUTING.MD](https://github.com/Scaffold-Stark/scaffold-stark-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-Stark.
+The frontend is a Next.js application in `packages/nextjs`. Key components:
+
+- `app/page.tsx`: Main landing and pool creation interface
+- `app/debug/`: Contract debugging interface
+- `components/scaffold-stark/`: Reusable web3 components
+- `hooks/scaffold-stark/`: Contract interaction hooks
+
+To work on the frontend:
+1. Start the development server: `yarn start`
+2. Make changes to components/pages
+3. Test interactions with the contract
+
+### Available Commands
+
+| Command          | Description                                                                               |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| `yarn chain`     | Start local Starknet network                                                              |
+| `yarn deploy`    | Deploy Pooler contract                                                                    |
+| `yarn start`     | Start Next.js development server                                                          |
+| `yarn test`      | Run contract tests                                                                        |
+| `yarn test:nextjs`| Run frontend tests                                                                       |
+
+## Contributing
+
+We welcome contributions to Friends! Here's how you can help:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Write/update tests
+5. Submit a pull request
+
+Please ensure your PR:
+- Includes tests for new functionality
+- Updates documentation as needed
+- Follows the existing code style
+- Includes a clear description of changes
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.
+
+## Support
+
+Need help? Join our community:
+- [GitHub Issues](https://github.com/your-repo/friends/issues)
+- [Documentation](https://docs.scaffoldstark.com/)

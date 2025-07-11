@@ -28,11 +28,23 @@ interface Goal {
   gradient: string;
 }
 
+// Types for contract return value
+type StarknetResponse = {
+  type: "(core::byte_array::ByteArray, core::integer::u256, core::starknet::contract_address::ContractAddress, core::integer::u256, core::bool)";
+};
+
 // Helper to format recipient as hex
-const formatRecipient = (val: string | number) => {
+const formatRecipient = (val: string | number | undefined | null) => {
   if (!val) return "0x0";
-  if (typeof val === "string" && val.startsWith("0x")) return val;
-  return `0x${BigInt(val).toString(16)}`;
+  try {
+    if (typeof val === "string") {
+      if (val.startsWith("0x")) return val;
+      return `0x${BigInt(val).toString(16)}`;
+    }
+    return `0x${BigInt(val).toString(16)}`;
+  } catch {
+    return "0x0";
+  }
 };
 
 // Helper to format big numbers
@@ -53,6 +65,16 @@ const formatStrkAmount = (val: string | number | bigint) => {
   }
 };
 
+// Helper to convert ByteArray to string
+const byteArrayToString = (byteArray: any): string => {
+  try {
+    // For now just return a placeholder if we can't convert
+    return byteArray?.toString() || "Pool";
+  } catch {
+    return "Pool";
+  }
+};
+
 const Home = () => {
   const [activeView, setActiveView] = useState("landing");
   const [poolIdInput, setPoolIdInput] = useState("");
@@ -62,14 +84,32 @@ const Home = () => {
   const { data: fetchedPool, isLoading: isPoolLoading, error: poolError } = useScaffoldReadContract({
     contractName: "Pooler",
     functionName: "get_pool",
-    args: poolIdToFetch !== undefined ? [poolIdToFetch] : undefined,
+    args: [poolIdToFetch || 0] as const,
     enabled: poolIdToFetch !== undefined,
-  });
+  }) as { data: any, isLoading: boolean, error: Error | null };
+
+  // Helper to safely get pool values
+  const getPoolValue = (index: number) => {
+    try {
+      return fetchedPool?.[index]?.toString() || "0";
+    } catch {
+      return "0";
+    }
+  };
+
+  // Helper to check if pool is complete
+  const isPoolComplete = () => {
+    try {
+      return Boolean(fetchedPool?.[4]);
+    } catch {
+      return false;
+    }
+  };
 
   const { sendAsync, isPending: isContributing, error: contributeError } = useScaffoldWriteContract({
     contractName: "Pooler",
     functionName: "contribute",
-    args: [poolIdToFetch || 0n, BigInt(Number(contributionAmount) * 10 ** 18)], // Convert ETH to STRK (18 decimals)
+    args: [poolIdToFetch || 0n, BigInt(parseFloat(contributionAmount) * 10 ** 18)], // Convert ETH to STRK (18 decimals)
   });
 
   const handleFetchPool = () => {
@@ -391,10 +431,10 @@ const Home = () => {
             <div className="card-body">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="card-title text-2xl font-bold text-gray-800">
-                  <span className="inline-block emoji-wiggle">🎯</span> {fetchedPool[0]}
+                  <span className="inline-block emoji-wiggle">🎯</span> Pool #{poolIdToFetch}
                 </h2>
-                <div className={`badge ml-2 ${fetchedPool[4] ? "badge-success animate-pulse" : "badge-secondary animate-bounce"}`}>
-                  {fetchedPool[4] ? (
+                <div className={`badge ml-2 ${isPoolComplete() ? "badge-success animate-pulse" : "badge-secondary animate-bounce"}`}>
+                  {isPoolComplete() ? (
                     <>
                       <Trophy className="w-3 h-3 mr-1" /> Complete!
                     </>
@@ -404,15 +444,15 @@ const Home = () => {
                 </div>
               </div>
               <div className="mb-2 text-gray-700 text-lg font-medium">
-                Target: <span className="text-purple-700">Ξ {fetchedPool[1]}</span>
+                Target: <span className="text-purple-700">Ξ {formatStrkAmount(getPoolValue(1))}</span>
               </div>
               <div className="mb-2 text-gray-700 text-lg font-medium">
-                Current: <span className="text-blue-700">Ξ {formatStrkAmount(fetchedPool[3])}</span>
+                Current: <span className="text-blue-700">Ξ {formatStrkAmount(getPoolValue(3))}</span>
               </div>
               <div className="mb-2 text-gray-700 text-sm">
-                Recipient: <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{formatRecipient(fetchedPool[2])}</span>
+                Recipient: <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">{formatRecipient(getPoolValue(2))}</span>
               </div>
-           
+
             </div>
           </div>
         )}
@@ -435,24 +475,24 @@ const Home = () => {
                     step="0.01"
                     value={contributionAmount}
                     onChange={e => setContributionAmount(e.target.value)}
-                    disabled={fetchedPool[4] || isContributing}
+                    disabled={isPoolComplete() || isContributing}
                   />
                 </div>
                 <button 
                   className="btn btn-primary bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white border-0"
-                  disabled={fetchedPool[4] || isContributing}
+                  disabled={isPoolComplete() || isContributing}
                   onClick={handleContribute}
                 >
                   <Heart className="w-4 h-4 mr-2" />
-                  {isContributing ? "Contributing..." : (fetchedPool[4] ? "Pool Complete!" : "Contribute")}
+                  {isContributing ? "Contributing..." : (isPoolComplete() ? "Pool Complete!" : "Contribute")}
                 </button>
                 {contributeError && (
-                  <div className="text-red-500 text-sm text-center">{contributeError}</div>
+                  <div className="text-red-500 text-sm text-center">{String(contributeError)}</div>
                 )}
                 <div className="text-sm text-center text-gray-500">
-                  {fetchedPool[4] 
+                  {isPoolComplete() 
                     ? "This pool has reached its target!"
-                    : `${formatStrkAmount(fetchedPool[3])} / ${fetchedPool[1]} STRK raised`
+                    : `${formatStrkAmount(getPoolValue(3))} / ${formatStrkAmount(getPoolValue(1))} STRK raised`
                   }
                 </div>
               </div>
